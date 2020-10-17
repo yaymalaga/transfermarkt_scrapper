@@ -13,11 +13,13 @@ pub struct League {
 }
 
 impl League {
-    pub fn scrape_leagues(driver: &Driver, whitelist: Option<Vec<&str>>) -> Vec<WebElement>{
+    pub fn scrape_leagues<'a>(driver: &'a Driver, whitelist: Option<Vec<&str>>) -> Vec<WebElement<'a>>{
         driver.get(LEAGUES_URL).expect("Error while loading leagues page");
 
         let leagues_data = driver
             .find_elements(By::XPath("//div[@id='yw1']//td[@class='hauptlink']//tr"))
             .expect("Error while getting leagues data");
+
+        leagues_data
     }
 }
