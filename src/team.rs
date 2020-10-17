@@ -4,6 +4,7 @@ use crate::driver::Driver;
 use crate::league::League;
 use crate::player::Player;
 
+#[derive(Debug)]
 pub struct Team {
     pub name: String,
     pub url: String,
@@ -58,7 +59,7 @@ impl Team {
             .collect()
     }
 
-    fn scrape_team_players(driver: &Driver, teams_data: &mut Self) {
+    pub fn scrape_team_players(driver: &Driver, teams_data: &mut Self) {
         teams_data.players = Player::scrape_players_data(driver, teams_data);
     }
 }

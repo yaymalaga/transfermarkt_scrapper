@@ -5,6 +5,7 @@ use crate::team::Team;
 
 const LEAGUES_URL: &str = "https://www.transfermarkt.com/wettbewerbe/europa";
 
+#[derive(Debug)]
 pub struct League {
     pub name: String,
     pub url: String,
@@ -61,7 +62,7 @@ impl League {
             .collect()
     }
 
-    fn scrape_league_teams_basic(driver: &Driver, league_data: &mut Self) {
+    pub fn scrape_league_teams_basic(driver: &Driver, league_data: &mut Self) {
         league_data.teams = Team::scrape_teams_data(driver, league_data);
     }
 }
