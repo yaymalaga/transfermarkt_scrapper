@@ -42,10 +42,7 @@ impl League {
         Self::new(name, url, logo_url, vec![])
     }
 
-    pub fn scrape_leagues_basic(
-        driver: &Driver,
-        whitelist: Option<Vec<&str>>,
-    ) -> Vec<Self> {
+    pub fn scrape_leagues_basic(driver: &Driver, whitelist: Option<Vec<&str>>) -> Vec<Self> {
         driver
             .get(LEAGUES_URL)
             .expect("Error while loading leagues page");
@@ -58,7 +55,7 @@ impl League {
             .iter()
             .map(|x| Self::scrape_league_element(x))
             .filter(|x| match &whitelist {
-                Some(leagues_list) => leagues_list.iter().any(|&i|i == x.name),
+                Some(leagues_list) => leagues_list.iter().any(|&i| i == x.name),
                 None => true,
             })
             .collect()
@@ -80,6 +77,7 @@ mod tests {
         let caps = DesiredCapabilities::chrome();
         let driver =
             WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
+
         assert_eq!(League::scrape_leagues_basic(&driver, None).len(), 25);
     }
 
@@ -88,9 +86,12 @@ mod tests {
         let caps = DesiredCapabilities::chrome();
         let driver =
             WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
-        assert_eq!(
-            League::scrape_leagues_basic(&driver, Some(vec!["LaLiga", "TEST"])).len(),
-            1
-        );
+
+        let mut scrapping_result =
+            League::scrape_leagues_basic(&driver, Some(vec!["LaLiga", "TEST"]));
+        assert_eq!(scrapping_result.len(), 1);
+
+        League::scrape_league_teams_basic(&driver, &mut scrapping_result[0]);
+        assert_eq!(scrapping_result[0].teams.len(), 20);
     }
 }
