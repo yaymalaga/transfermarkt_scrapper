@@ -5,18 +5,18 @@ use crate::league::League;
 use crate::player::Player;
 
 pub struct Team {
-    name: String,
-    logo_url: String,
-    team_url: String,
-    players: Vec<Player>,
+    pub name: String,
+    pub url: String,
+    pub logo_url: String,
+    pub players: Vec<Player>,
 }
 
 impl Team {
-    pub fn new(name: String, logo_url: String, team_url: String, players: Vec<Player>) -> Self {
+    pub fn new(name: String, url: String, logo_url: String, players: Vec<Player>) -> Self {
         Self {
             name,
+            url,
             logo_url,
-            team_url,
             players,
         }
     }
@@ -54,5 +54,9 @@ impl Team {
             .iter()
             .map(|x| Self::scrape_team_element(x))
             .collect()
+    }
+
+    fn scrape_team_players(driver: &Driver, teams_data: &mut Self) {
+        teams_data.players = Player::scrape_players_data(driver, teams_data);
     }
 }
