@@ -2,6 +2,7 @@ use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 
 use crate::{driver::Driver, team::Team};
 
+#[derive(Debug)]
 pub struct Player {
     pub name: String,
     pub photo_url: String,
@@ -46,7 +47,7 @@ impl Player {
             .get_attribute("innerHTML")
             .expect("Player role text was not found");
 
-        let price = player_data
+        let price = player_element
             .find_element(By::XPath("./td[@class='rechts hauptlink']"))
             .expect("Player price was not found")
             .text()
@@ -63,6 +64,10 @@ impl Player {
         let players_raw_data = driver
             .find_elements(By::XPath("//div[@id='yw1']/table/tbody/tr"))
             .expect("Error while getting teams data");
+
+        driver
+            .execute_script("window.scrollTo(0, document.body.scrollHeight/3);")
+            .expect("Error while executing scrolling script");
 
         players_raw_data
             .iter()
