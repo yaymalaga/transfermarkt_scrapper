@@ -6,10 +6,10 @@ use crate::team::Team;
 const LEAGUES_URL: &str = "https://www.transfermarkt.com/wettbewerbe/europa";
 
 pub struct League {
-    name: String,
-    url: String,
-    logo_url: String,
-    teams: Vec<Team>,
+    pub name: String,
+    pub url: String,
+    pub logo_url: String,
+    pub teams: Vec<Team>,
 }
 
 impl League {
@@ -39,13 +39,13 @@ impl League {
             .get_attribute("src")
             .expect("League image url was not found");
 
-        League::new(name, url, logo_url, vec![])
+        Self::new(name, url, logo_url, vec![])
     }
 
-    pub fn scrape_leagues_basic<'a>(
-        driver: &'a Driver,
+    pub fn scrape_leagues_basic(
+        driver: &Driver,
         whitelist: Option<Vec<&str>>,
-    ) -> Vec<League> {
+    ) -> Vec<Self> {
         driver
             .get(LEAGUES_URL)
             .expect("Error while loading leagues page");
@@ -64,8 +64,8 @@ impl League {
             .collect()
     }
 
-    fn scrape_league_teams_basic(league_data: &mut League) {
-        league_data.teams = Team::scrape_teams_data(&league_data);
+    fn scrape_league_teams_basic(driver: &Driver, league_data: &mut Self) {
+        league_data.teams = Team::scrape_teams_data(driver, league_data);
     }
 }
 
