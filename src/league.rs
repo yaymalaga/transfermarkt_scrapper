@@ -14,7 +14,12 @@ pub struct League {
 
 impl League {
     pub fn new(name: String, url: String, logo_url: String, teams: Vec<Team>) -> Self {
-        Self { name, url, logo_url, teams }
+        Self {
+            name,
+            url,
+            logo_url,
+            teams,
+        }
     }
 
     pub fn leagues_data_scrapping<'a>(
@@ -37,6 +42,16 @@ impl League {
                 .expect("League data not found");
 
             let name = league_data.text().expect("League name was not found");
+
+            match &whitelist {
+                Some(leagues_list) => {
+                    if !leagues_list.iter().any(|&x| x == &name) {
+                        continue;
+                    }
+                }
+                None => (),
+            }
+
             let url = league_data
                 .get_attribute("href")
                 .expect("League link was not found");
@@ -51,5 +66,31 @@ impl League {
         }
 
         leagues
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use thirtyfour_sync::{DesiredCapabilities, WebDriver};
+
+    use super::*;
+
+    #[test]
+    fn scrape_every_league() {
+        let caps = DesiredCapabilities::chrome();
+        let driver =
+            WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
+        assert_eq!(League::leagues_data_scrapping(&driver, None).len(), 25);
+    }
+
+    #[test]
+    fn scrape_whitelist() {
+        let caps = DesiredCapabilities::chrome();
+        let driver =
+            WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
+        assert_eq!(
+            League::leagues_data_scrapping(&driver, Some(vec!["LaLiga", "TEST"])).len(),
+            1
+        );
     }
 }
