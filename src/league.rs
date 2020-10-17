@@ -1,4 +1,4 @@
-use thirtyfour_sync::{By, WebDriverCommands};
+use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 
 use crate::driver::Driver;
 use crate::team::Team;
@@ -22,7 +22,27 @@ impl League {
         }
     }
 
-    pub fn leagues_data_scrapping<'a>(
+    pub fn scrape_league_element(league_element: &WebElement) -> Self {
+        let league_data = league_element
+            .find_element(By::XPath("./td[2]/a[1]"))
+            .expect("League data not found");
+
+        let name = league_data.text().expect("League name was not found");
+
+        let url = league_data
+            .get_attribute("href")
+            .expect("League link was not found");
+
+        let logo_url = league_element
+            .find_element(By::XPath("./td[1]//img[1]"))
+            .expect("League image was not found")
+            .get_attribute("src")
+            .expect("League image url was not found");
+
+        League::new(name, url, logo_url, vec![])
+    }
+
+    pub fn scrape_leagues_basic<'a>(
         driver: &'a Driver,
         whitelist: Option<Vec<&str>>,
     ) -> Vec<League> {
@@ -34,38 +54,18 @@ impl League {
             .find_elements(By::XPath("//div[@id='yw1']//td[@class='hauptlink']//tr"))
             .expect("Error while getting leagues data");
 
-        let mut leagues: Vec<League> = vec![];
+        leagues_raw_data
+            .iter()
+            .map(|x| Self::scrape_league_element(x))
+            .filter(|x| match &whitelist {
+                Some(leagues_list) => leagues_list.iter().any(|&i|i == x.name),
+                None => true,
+            })
+            .collect()
+    }
 
-        for league in &leagues_raw_data {
-            let league_data = league
-                .find_element(By::XPath("./td[2]/a[1]"))
-                .expect("League data not found");
-
-            let name = league_data.text().expect("League name was not found");
-
-            match &whitelist {
-                Some(leagues_list) => {
-                    if !leagues_list.iter().any(|&x| x == &name) {
-                        continue;
-                    }
-                }
-                None => (),
-            }
-
-            let url = league_data
-                .get_attribute("href")
-                .expect("League link was not found");
-
-            let logo_url = league
-                .find_element(By::XPath("./td[1]//img[1]"))
-                .expect("League image was not found")
-                .get_attribute("src")
-                .expect("League image url was not found");
-
-            leagues.push(League::new(name, url, logo_url, vec![]))
-        }
-
-        leagues
+    fn scrape_league_teams_basic(league_data: &mut League) {
+        league_data.teams = Team::scrape_teams_data(&league_data);
     }
 }
 
@@ -80,7 +80,7 @@ mod tests {
         let caps = DesiredCapabilities::chrome();
         let driver =
             WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
-        assert_eq!(League::leagues_data_scrapping(&driver, None).len(), 25);
+        assert_eq!(League::scrape_leagues_basic(&driver, None).len(), 25);
     }
 
     #[test]
@@ -89,7 +89,7 @@ mod tests {
         let driver =
             WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
         assert_eq!(
-            League::leagues_data_scrapping(&driver, Some(vec!["LaLiga", "TEST"])).len(),
+            League::scrape_leagues_basic(&driver, Some(vec!["LaLiga", "TEST"])).len(),
             1
         );
     }
