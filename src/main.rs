@@ -1,3 +1,4 @@
+use player::Player;
 use team::Team;
 use thirtyfour_sync::prelude::*;
 
@@ -12,15 +13,36 @@ fn main() {
     let caps = DesiredCapabilities::chrome();
     let driver = WebDriver::new("http://localhost:4444", &caps).unwrap();
 
-    let mut leagues_data = League::scrape_leagues_basic(&driver, None);
+    let whitelist: Option<Vec<&str>> = None;
+    let mut scrapping_data = vec![];
 
-    for league in leagues_data.iter_mut() {
-        League::scrape_league_teams_basic(&driver, league);
+    let leagues_raw_data = League::get_leagues_raw_data(&driver);
+    for league_raw in leagues_raw_data {
+        let mut league = League::scrape_league_element(&league_raw);
 
-        for team in league.teams.iter_mut() {
-            Team::scrape_team_players(&driver, team);
-            println!("{:#?}", leagues_data);
-            panic!();
+        match &whitelist {
+            Some(leagues_list) => {
+                if leagues_list.iter().any(|&i| i == league.name) {
+                    continue;
+                }
+            }
+            None => (),
+        };
+
+        let teams_raw_data = Team::get_teams_raw_data(&driver, &league);
+        for team_raw in teams_raw_data {
+            let mut team = Team::scrape_team_element(&team_raw);
+
+            let players_raw_data = Player::get_players_raw_data(&driver, &team);
+            for player_raw in players_raw_data {
+                let player = Player::scrape_player_element(&player_raw);
+
+                team.players.push(player);
+            }
+
+            league.teams.push(team);
         }
+
+        scrapping_data.push(league);
     }
 }
