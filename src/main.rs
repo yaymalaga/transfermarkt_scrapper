@@ -8,10 +8,16 @@ mod driver;
 mod league;
 mod player;
 mod team;
+mod terminal_helper;
 
 use crate::league::League;
+use crate::terminal_helper::TerminalHelper;
 
 fn main() {
+    TerminalHelper::new();
+}
+
+fn main2() {
     let caps = DesiredCapabilities::chrome();
     let driver = WebDriver::new("http://localhost:4444", &caps).unwrap();
 

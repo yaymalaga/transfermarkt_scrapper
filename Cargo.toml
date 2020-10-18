@@ -10,3 +10,5 @@ edition = "2018"
 thirtyfour_sync = "0.19.1"
 serde = "1.0"
 serde_json = "1.0"
+crossterm = "0.17"
+tui = { version = "0.12", default-features = false, features = ['crossterm'] }
