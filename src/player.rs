@@ -52,7 +52,9 @@ impl Player {
             .find_element(By::XPath("./td[@class='rechts hauptlink']"))
             .expect("Player price was not found")
             .text()
-            .expect("Player price text was not found");
+            .expect("Player price text was not found")
+            .trim_end()
+            .to_string();
 
         Self::new(name, photo_url, role, price)
     }
