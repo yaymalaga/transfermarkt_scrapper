@@ -1060,6 +1060,8 @@ dependencies = [
 name = "transfermarkt_scrapper"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
  "thirtyfour_sync",
 ]
 

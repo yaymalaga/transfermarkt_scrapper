@@ -1,11 +1,12 @@
 use thirtyfour_sync::{By, WebDriverCommands, WebElement};
+use serde::Serialize;
 
 use crate::driver::Driver;
 use crate::team::Team;
 
 const LEAGUES_URL: &str = "https://www.transfermarkt.com/wettbewerbe/europa";
 
-#[derive(Debug)]
+#[derive(Serialize)]
 pub struct League {
     pub name: String,
     pub url: String,

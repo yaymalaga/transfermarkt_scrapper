@@ -1,10 +1,11 @@
 use thirtyfour_sync::{By, WebDriverCommands, WebElement};
+use serde::Serialize;
 
 use crate::driver::Driver;
 use crate::league::League;
 use crate::player::Player;
 
-#[derive(Debug)]
+#[derive(Serialize)]
 pub struct Team {
     pub name: String,
     pub url: String,

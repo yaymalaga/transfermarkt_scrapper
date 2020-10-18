@@ -1,8 +1,9 @@
 use thirtyfour_sync::{By, WebDriverCommands, WebElement};
+use serde::Serialize;
 
 use crate::{driver::Driver, team::Team};
 
-#[derive(Debug)]
+#[derive(Serialize)]
 pub struct Player {
     pub name: String,
     pub photo_url: String,

@@ -35,11 +35,18 @@ fn main() {
                 let player = Player::scrape_player_element(&player_raw);
 
                 team.players.push(player);
+                break
             }
 
             league.teams.push(team);
+            break
         }
 
         scrapping_data.push(league);
+        break
     }
+
+    let scrapping_data_json =
+        serde_json::to_string(&scrapping_data).expect("Error while serializing data to JSON");
+    println!("{}", scrapping_data_json);
 }
