@@ -43,14 +43,14 @@ impl League {
         Self::new(name, url, logo_url, vec![])
     }
 
-    pub fn get_leagues_raw_data(driver: &Driver) -> Vec<WebElement> {
+    pub fn get_leagues_raw_data<'a>(driver: &'a Driver) -> Vec<WebElement<'a>> {
         driver
             .get(LEAGUES_URL)
             .expect("Error while loading leagues page");
 
         driver
             .find_elements(By::XPath("//div[@id='yw1']//td[@class='hauptlink']//tr"))
-            .expect("Error while getting leagues data");
+            .expect("Error while getting leagues data")
     }
 }
 

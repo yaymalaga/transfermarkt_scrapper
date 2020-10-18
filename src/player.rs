@@ -56,7 +56,7 @@ impl Player {
         Self::new(name, photo_url, role, price)
     }
 
-    pub fn get_players_raw_data(driver: &Driver, team: &Team) -> Vec<WebElement> {
+    pub fn get_players_raw_data<'a>(driver: &'a Driver, team: &Team) -> Vec<WebElement<'a>> {
         driver
             .get(&team.url)
             .expect(&format!("Error while loading {} team page", &team.name));
@@ -65,8 +65,8 @@ impl Player {
             .execute_script("window.scrollTo(0, document.body.scrollHeight/3);")
             .expect("Error while executing scrolling script");
 
-        let players_raw_data = driver
+        driver
             .find_elements(By::XPath("//div[@id='yw1']/table/tbody/tr"))
-            .expect("Error while getting teams data");
+            .expect("Error while getting teams data")
     }
 }

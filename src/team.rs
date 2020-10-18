@@ -44,7 +44,7 @@ impl Team {
         Self::new(name, url, logo_url, vec![])
     }
 
-    pub fn get_teams_raw_data(driver: &Driver, league: &League) -> Vec<WebElement> {
+    pub fn get_teams_raw_data<'a>(driver: &'a Driver, league: &League) -> Vec<WebElement<'a>> {
         driver
             .get(&league.url)
             .expect(&format!("Error while loading {} league page", &league.name));
