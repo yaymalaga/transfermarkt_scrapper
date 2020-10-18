@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 use serde::Serialize;
 
@@ -11,11 +13,11 @@ pub struct League {
     pub name: String,
     pub url: String,
     pub logo_url: String,
-    pub teams: Vec<Team>,
+    pub teams: HashMap<String, Team>,
 }
 
 impl League {
-    pub fn new(name: String, url: String, logo_url: String, teams: Vec<Team>) -> Self {
+    pub fn new(name: String, url: String, logo_url: String, teams: HashMap<String, Team>) -> Self {
         Self {
             name,
             url,
@@ -41,7 +43,7 @@ impl League {
             .get_attribute("src")
             .expect("League image url was not found");
 
-        Self::new(name, url, logo_url, vec![])
+        Self::new(name, url, logo_url, HashMap::new())
     }
 
     pub fn get_leagues_raw_data<'a>(driver: &'a Driver) -> Vec<WebElement<'a>> {

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use player::Player;
 use team::Team;
 use thirtyfour_sync::prelude::*;
@@ -14,7 +16,7 @@ fn main() {
     let driver = WebDriver::new("http://localhost:4444", &caps).unwrap();
 
     let whitelist: Option<Vec<&str>> = None;
-    let mut scrapping_data = vec![];
+    let mut scrapping_data: HashMap<String, League> = HashMap::new();
 
     let leagues_raw_data = League::get_leagues_raw_data(&driver);
     for league_raw in leagues_raw_data {
@@ -34,16 +36,16 @@ fn main() {
             for player_raw in players_raw_data {
                 let player = Player::scrape_player_element(&player_raw);
 
-                team.players.push(player);
-                break
+                team.players.insert(player.name.clone(), player);
+                break;
             }
 
-            league.teams.push(team);
-            break
+            league.teams.insert(team.name.clone(), team);
+            break;
         }
 
-        scrapping_data.push(league);
-        break
+        scrapping_data.insert(league.name.clone(), league);
+        break;
     }
 
     let scrapping_data_json =
