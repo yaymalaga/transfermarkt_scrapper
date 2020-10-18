@@ -20,14 +20,11 @@ fn main() {
     for league_raw in leagues_raw_data {
         let mut league = League::scrape_league_element(&league_raw);
 
-        match &whitelist {
-            Some(leagues_list) => {
-                if leagues_list.iter().any(|&i| i == league.name) {
-                    continue;
-                }
+        if let Some(leagues_list) = &whitelist {
+            if leagues_list.iter().any(|&i| i == league.name) {
+                continue;
             }
-            None => (),
-        };
+        }
 
         let teams_raw_data = Team::get_teams_raw_data(&driver, &league);
         for team_raw in teams_raw_data {
