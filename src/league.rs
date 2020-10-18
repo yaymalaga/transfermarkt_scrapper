@@ -43,27 +43,14 @@ impl League {
         Self::new(name, url, logo_url, vec![])
     }
 
-    pub fn scrape_leagues_basic(driver: &Driver, whitelist: Option<Vec<&str>>) -> Vec<Self> {
+    pub fn get_leagues_raw_data(driver: &Driver) -> Vec<WebElement> {
         driver
             .get(LEAGUES_URL)
             .expect("Error while loading leagues page");
 
-        let leagues_raw_data = driver
+        driver
             .find_elements(By::XPath("//div[@id='yw1']//td[@class='hauptlink']//tr"))
             .expect("Error while getting leagues data");
-
-        leagues_raw_data
-            .iter()
-            .map(|x| Self::scrape_league_element(x))
-            .filter(|x| match &whitelist {
-                Some(leagues_list) => leagues_list.iter().any(|&i| i == x.name),
-                None => true,
-            })
-            .collect()
-    }
-
-    pub fn scrape_league_teams_basic(driver: &Driver, league_data: &mut Self) {
-        league_data.teams = Team::scrape_teams_data(driver, league_data);
     }
 }
 

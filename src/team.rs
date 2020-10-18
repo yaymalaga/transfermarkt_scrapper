@@ -44,22 +44,13 @@ impl Team {
         Self::new(name, url, logo_url, vec![])
     }
 
-    pub fn scrape_teams_data(driver: &Driver, league: &League) -> Vec<Self> {
+    pub fn get_teams_raw_data(driver: &Driver, league: &League) -> Vec<WebElement> {
         driver
             .get(&league.url)
             .expect(&format!("Error while loading {} league page", &league.name));
 
-        let teams_raw_data = driver
+        driver
             .find_elements(By::XPath("//div[@id='yw1']//tbody//tr"))
-            .expect("Error while getting teams data");
-
-        teams_raw_data
-            .iter()
-            .map(|x| Self::scrape_team_element(x))
-            .collect()
-    }
-
-    pub fn scrape_team_players(driver: &Driver, teams_data: &mut Self) {
-        teams_data.players = Player::scrape_players_data(driver, teams_data);
+            .expect("Error while getting teams data")
     }
 }
