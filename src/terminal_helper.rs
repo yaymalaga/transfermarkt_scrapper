@@ -99,7 +99,7 @@ impl<'a> TerminalHelper<'a> {
         let percentage = self.percentage;
         let leagues_list = self.leagues_list.clone();
         let teams_list = self.teams_list.clone();
-        let players_list = self.teams_list.clone();
+        let players_list = self.players_list.clone();
 
         self.terminal.draw(|f| {
             // Layout
