@@ -55,7 +55,9 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn clean_leagues_list(&mut self) {
-        self.leagues_list = vec![];
+        if !self.leagues_list.is_empty() {
+            self.leagues_list.clear();
+        }
     }
 
     pub fn push_team_item(&mut self, team_name: String) {
@@ -64,7 +66,9 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn clean_teams_list(&mut self) {
-        self.teams_list = vec![];
+        if !self.teams_list.is_empty() {
+            self.teams_list.clear();
+        }
     }
 
     pub fn push_player_item(&mut self, player_name: String) {
@@ -73,7 +77,9 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn clean_players_list(&mut self) {
-        self.players_list = vec![];
+        if !self.players_list.is_empty() {
+            self.players_list.clear();
+        }
     }
 
     fn get_list_state(list: &Vec<ListItem>) -> ListState {

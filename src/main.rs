@@ -33,12 +33,15 @@ fn main() {
         }
 
         terminal_helper.push_league_item(league.name.clone());
+        terminal_helper.clean_teams_list();
+        terminal_helper.clean_players_list();
 
         let teams_raw_data = Team::get_teams_raw_data(&driver, &league);
         for team_raw in teams_raw_data {
             let mut team = Team::scrape_team_element(&team_raw);
 
             terminal_helper.push_team_item(team.name.clone());
+            terminal_helper.clean_players_list();
 
             let players_raw_data = Player::get_players_raw_data(&driver, &team);
             for player_raw in players_raw_data {
@@ -51,12 +54,10 @@ fn main() {
             }
 
             league.teams.insert(team.name.clone(), team);
-            terminal_helper.clean_players_list();
             break;
         }
 
         scrapping_data.insert(league.name.clone(), league);
-        terminal_helper.clean_teams_list();
         break;
     }
 
