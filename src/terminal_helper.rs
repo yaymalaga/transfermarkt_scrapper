@@ -7,7 +7,7 @@ use tui::{
 use tui::{layout::Corner, widgets::ListState, Terminal};
 
 pub struct TerminalHelper<'a> {
-    terminal: RefCell<Terminal<CrosstermBackend<Stdout>>>,
+    terminal: Terminal<CrosstermBackend<Stdout>>,
     percentage: u16,
     leagues_list: Vec<ListItem<'a>>,
     teams_list: Vec<ListItem<'a>>,
@@ -23,7 +23,7 @@ impl<'a> TerminalHelper<'a> {
         terminal.hide_cursor();
 
         let mut terminal_helper = Self {
-            terminal: RefCell::new(terminal),
+            terminal,
             percentage: 50,
             leagues_list: vec![],
             teams_list: vec![],
@@ -38,25 +38,32 @@ impl<'a> TerminalHelper<'a> {
         self.percentage = min(percentage, 100)
     }
 
-    fn push_list_item(list: &mut Vec<ListItem<'a>>, item: &'a str) {
-        list.push(ListItem::new(item).style(Style::default().fg(Color::LightGreen)));
+    fn generate_list_item(item: &'a str) -> ListItem<'a> {
+        ListItem::new(item).style(Style::default().fg(Color::LightGreen))
     }
 
     pub fn push_league_item(&mut self, league_name: &'a str) {
-        Self::push_list_item(&mut self.leagues_list, league_name);
+        self.leagues_list.push(Self::generate_list_item(league_name));
+        self.render();
     }
 
     pub fn push_team_item(&mut self, team_name: &'a str) {
-        Self::push_list_item(&mut self.teams_list, team_name);
+        self.teams_list.push(Self::generate_list_item(team_name));
+        self.render();
     }
 
     pub fn push_player_item(&mut self, player_name: &'a str) {
-        Self::push_list_item(&mut self.players_list, player_name);
+        self.players_list.push(Self::generate_list_item(player_name));
+        self.render();
     }
 
-    fn render(&self) {
-        // Internal mutability in order to access struct state
-        self.terminal.borrow_mut().draw(|f| {
+    fn render(&mut self) {
+        let percentage = self.percentage;
+        let leagues_list = self.leagues_list.clone();
+        let teams_list = self.teams_list.clone();
+        let players_list = self.teams_list.clone();
+
+        self.terminal.draw(|f| {
             // Layout
             let vertical_chunks = Layout::default()
                 .direction(Direction::Vertical)
@@ -78,38 +85,23 @@ impl<'a> TerminalHelper<'a> {
                 )
                 .split(vertical_chunks[0]);
 
-            // Lists space
             let block = Block::default()
                 .title(" SCRAPPING DETAILS ")
                 .borders(Borders::ALL);
             f.render_widget(block, vertical_chunks[0]);
 
-            let items = [
-                ListItem::new("Item 1").style(Style::default().fg(Color::LightGreen)),
-                ListItem::new("Item 2"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-                ListItem::new("Item 3"),
-            ];
-
-            let leagues_list = List::new(items.clone())
+            // Lists space
+            let leagues_list = List::new(leagues_list)
                 .block(Block::default().title(" LEAGUES ").borders(Borders::ALL));
             f.render_widget(leagues_list, horizontal_chunks[0]);
 
-            let teams_list = List::new(items.clone())
+            let teams_list = List::new(teams_list)
                 .block(Block::default().title(" TEAMS ").borders(Borders::ALL));
             f.render_widget(teams_list, horizontal_chunks[1]);
 
             let mut state = ListState::default();
             state.select(Some(10));
-            let players_list = List::new(items)
+            let players_list = List::new(players_list)
                 .block(Block::default().title(" PLAYERS ").borders(Borders::ALL))
                 .highlight_style(Style::default().fg(Color::LightCyan))
                 .highlight_symbol(">> ");
@@ -123,7 +115,7 @@ impl<'a> TerminalHelper<'a> {
                         .borders(Borders::ALL),
                 )
                 .gauge_style(Style::default().fg(Color::LightMagenta))
-                .percent(self.percentage);
+                .percent(percentage);
             f.render_widget(gauge, vertical_chunks[1]);
         });
     }
