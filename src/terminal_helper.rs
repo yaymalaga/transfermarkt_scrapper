@@ -45,23 +45,35 @@ impl<'a> TerminalHelper<'a> {
         self.render()
     }
 
-    fn generate_list_item(item: &'a str) -> ListItem<'a> {
+    fn generate_list_item(item: String) -> ListItem<'a> {
         ListItem::new(item).style(Style::default().fg(Color::LightGreen))
     }
 
-    pub fn push_league_item(&mut self, league_name: &'a str) {
+    pub fn push_league_item(&mut self, league_name: String) {
         self.leagues_list.push(Self::generate_list_item(league_name));
         self.render();
     }
 
-    pub fn push_team_item(&mut self, team_name: &'a str) {
+    pub fn clean_leagues_list(&mut self) {
+        self.leagues_list = vec![];
+    }
+
+    pub fn push_team_item(&mut self, team_name: String) {
         self.teams_list.push(Self::generate_list_item(team_name));
         self.render();
     }
 
-    pub fn push_player_item(&mut self, player_name: &'a str) {
+    pub fn clean_teams_list(&mut self) {
+        self.teams_list = vec![];
+    }
+
+    pub fn push_player_item(&mut self, player_name: String) {
         self.players_list.push(Self::generate_list_item(player_name));
         self.render();
+    }
+
+    pub fn clean_players_list(&mut self) {
+        self.players_list = vec![];
     }
 
     fn get_list_state(list: &Vec<ListItem>) -> ListState {

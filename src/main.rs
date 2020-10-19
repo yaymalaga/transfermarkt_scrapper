@@ -14,17 +14,10 @@ use crate::league::League;
 use crate::terminal_helper::TerminalHelper;
 
 fn main() {
-    let mut terminal_helper = TerminalHelper::new();
-    terminal_helper.set_percentage(25);
-    terminal_helper.push_league_item("XXXX");
-    terminal_helper.push_team_item("YYYY");
-    terminal_helper.push_player_item("ZZZZ");
-    terminal_helper.close();
-}
-
-fn main2() {
     let caps = DesiredCapabilities::chrome();
     let driver = WebDriver::new("http://localhost:4444", &caps).unwrap();
+
+    let mut terminal_helper = TerminalHelper::new();
 
     let whitelist: Option<Vec<&str>> = None;
     let mut scrapping_data: HashMap<String, League> = HashMap::new();
@@ -39,25 +32,35 @@ fn main2() {
             }
         }
 
+        terminal_helper.push_league_item(league.name.clone());
+
         let teams_raw_data = Team::get_teams_raw_data(&driver, &league);
         for team_raw in teams_raw_data {
             let mut team = Team::scrape_team_element(&team_raw);
 
+            terminal_helper.push_team_item(team.name.clone());
+
             let players_raw_data = Player::get_players_raw_data(&driver, &team);
             for player_raw in players_raw_data {
                 let player = Player::scrape_player_element(&player_raw);
+
+                terminal_helper.push_player_item(player.name.clone());
 
                 team.players.insert(player.name.clone(), player);
                 break;
             }
 
             league.teams.insert(team.name.clone(), team);
+            terminal_helper.clean_players_list();
             break;
         }
 
         scrapping_data.insert(league.name.clone(), league);
+        terminal_helper.clean_teams_list();
         break;
     }
+
+    terminal_helper.close();
 
     let scrapping_data_json =
         serde_json::to_string(&scrapping_data).expect("Error while serializing data to JSON");
