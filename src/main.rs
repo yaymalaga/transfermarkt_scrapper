@@ -14,8 +14,12 @@ use crate::league::League;
 use crate::terminal_helper::TerminalHelper;
 
 fn main() {
-    let terminal_helper = TerminalHelper::new();
-
+    let mut terminal_helper = TerminalHelper::new();
+    terminal_helper.set_percentage(25);
+    terminal_helper.push_league_item("XXXX");
+    terminal_helper.push_team_item("YYYY");
+    terminal_helper.push_player_item("ZZZZ");
+    terminal_helper.close();
 }
 
 fn main2() {

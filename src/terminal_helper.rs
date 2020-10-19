@@ -107,7 +107,7 @@ impl<'a> TerminalHelper<'a> {
             f.render_widget(teams_list, horizontal_chunks[1]);
 
             let mut state = ListState::default();
-            state.select(Some(10));
+            state.select(Some(0));
             let players_list = List::new(players_list)
                 .block(Block::default().title(" PLAYERS ").borders(Borders::ALL))
                 .highlight_style(Style::default().fg(Color::LightCyan))
