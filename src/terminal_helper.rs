@@ -8,7 +8,7 @@ use tui::{layout::Corner, widgets::ListState, Terminal};
 
 pub struct TerminalHelper<'a> {
     terminal: Terminal<CrosstermBackend<Stdout>>,
-    percentage: u16,
+    percentage: f64,
     leagues_list: Vec<ListItem<'a>>,
     teams_list: Vec<ListItem<'a>>,
     players_list: Vec<ListItem<'a>>,
@@ -24,7 +24,7 @@ impl<'a> TerminalHelper<'a> {
 
         let mut terminal_helper = Self {
             terminal,
-            percentage: 50,
+            percentage: 50.0,
             leagues_list: vec![],
             teams_list: vec![],
             players_list: vec![],
@@ -34,9 +34,18 @@ impl<'a> TerminalHelper<'a> {
         terminal_helper
     }
 
-    pub fn set_percentage(&mut self, percentage: u16) {
-        self.percentage = min(percentage, 100);
+    pub fn set_percentage(&mut self, percentage: f64) {
+        if percentage > 100.0 {
+            self.percentage = 100.0;
+        } else {
+            self.percentage = percentage;
+        }
         self.render();
+    }
+
+    pub fn add_percentage(&mut self, percentage: f64) {
+        let new_percentage = (self.percentage + percentage);
+        self.set_percentage(new_percentage);
     }
 
     pub fn close(&mut self) {
@@ -158,7 +167,7 @@ impl<'a> TerminalHelper<'a> {
                         .borders(Borders::ALL),
                 )
                 .gauge_style(Style::default().fg(Color::LightMagenta))
-                .percent(percentage);
+                .percent(percentage.round() as u16);
             f.render_widget(gauge, vertical_chunks[1]);
         });
     }
