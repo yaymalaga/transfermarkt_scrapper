@@ -1,4 +1,4 @@
-use std::{io::{self, Stdout}, cmp::min};
+use std::{cell::RefCell, cmp::min, io::{self, Stdout}};
 use tui::{
     backend::CrosstermBackend, layout::Constraint, layout::Direction, layout::Layout, style::Color,
     style::Style, text::Span, text::Spans, widgets::Block, widgets::Borders, widgets::Gauge,
@@ -7,7 +7,7 @@ use tui::{
 use tui::{layout::Corner, widgets::ListState, Terminal};
 
 pub struct TerminalHelper<'a> {
-    terminal: Terminal<CrosstermBackend<Stdout>>,
+    terminal: RefCell<Terminal<CrosstermBackend<Stdout>>>,
     percentage: u16,
     leagues_list: Vec<ListItem<'a>>,
     teams_list: Vec<ListItem<'a>>,
@@ -23,7 +23,7 @@ impl<'a> TerminalHelper<'a> {
         terminal.hide_cursor();
 
         let mut terminal_helper = Self {
-            terminal,
+            terminal: RefCell::new(terminal),
             percentage: 50,
             leagues_list: vec![],
             teams_list: vec![],
@@ -54,10 +54,9 @@ impl<'a> TerminalHelper<'a> {
         Self::push_list_item(&mut self.players_list, player_name);
     }
 
-    fn render(&mut self) {
-        let percentage = self.percentage;
-
-        self.terminal.draw(|f| {
+    fn render(&self) {
+        // Internal mutability in order to access struct state
+        self.terminal.borrow_mut().draw(|f| {
             // Layout
             let vertical_chunks = Layout::default()
                 .direction(Direction::Vertical)
@@ -124,7 +123,7 @@ impl<'a> TerminalHelper<'a> {
                         .borders(Borders::ALL),
                 )
                 .gauge_style(Style::default().fg(Color::LightMagenta))
-                .percent(percentage);
+                .percent(self.percentage);
             f.render_widget(gauge, vertical_chunks[1]);
         });
     }
