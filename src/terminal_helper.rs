@@ -64,6 +64,19 @@ impl<'a> TerminalHelper<'a> {
         self.render();
     }
 
+    fn get_list_state(list: &Vec<ListItem>) -> ListState {
+        let state = if list.len() == 0 {
+            None
+        } else {
+            Some(list.len() - 1)
+        };
+
+        let mut list_state = ListState::default();
+        list_state.select(state);
+
+        list_state
+    }
+
     fn render(&mut self) {
         let percentage = self.percentage;
         let leagues_list = self.leagues_list.clone();
@@ -98,21 +111,26 @@ impl<'a> TerminalHelper<'a> {
             f.render_widget(block, vertical_chunks[0]);
 
             // Lists space
+            let mut leagues_list_state = Self::get_list_state(&leagues_list);
             let leagues_list = List::new(leagues_list)
-                .block(Block::default().title(" LEAGUES ").borders(Borders::ALL));
-            f.render_widget(leagues_list, horizontal_chunks[0]);
+                .block(Block::default().title(" LEAGUES ").borders(Borders::ALL))
+                .highlight_style(Style::default().fg(Color::LightCyan))
+                .highlight_symbol(">> ");
+            f.render_stateful_widget(leagues_list, horizontal_chunks[0], &mut leagues_list_state);
 
+            let mut teams_list_state = Self::get_list_state(&teams_list);
             let teams_list = List::new(teams_list)
-                .block(Block::default().title(" TEAMS ").borders(Borders::ALL));
-            f.render_widget(teams_list, horizontal_chunks[1]);
+                .block(Block::default().title(" TEAMS ").borders(Borders::ALL))
+                .highlight_style(Style::default().fg(Color::LightCyan))
+                .highlight_symbol(">> ");
+            f.render_stateful_widget(teams_list, horizontal_chunks[1], &mut teams_list_state);
 
-            let mut state = ListState::default();
-            state.select(Some(0));
+            let mut player_list_state = Self::get_list_state(&players_list);
             let players_list = List::new(players_list)
                 .block(Block::default().title(" PLAYERS ").borders(Borders::ALL))
                 .highlight_style(Style::default().fg(Color::LightCyan))
                 .highlight_symbol(">> ");
-            f.render_stateful_widget(players_list, horizontal_chunks[2], &mut state);
+            f.render_stateful_widget(players_list, horizontal_chunks[2], &mut player_list_state);
 
             // Progress-bar space
             let gauge = Gauge::default()
