@@ -39,6 +39,12 @@ impl<'a> TerminalHelper<'a> {
         self.render();
     }
 
+    pub fn close(&mut self) {
+        // Force full re-drawn so the terminal's new line appears below the TUI
+        self.terminal.clear();
+        self.render()
+    }
+
     fn generate_list_item(item: &'a str) -> ListItem<'a> {
         ListItem::new(item).style(Style::default().fg(Color::LightGreen))
     }
