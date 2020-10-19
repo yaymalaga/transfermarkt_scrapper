@@ -34,8 +34,9 @@ impl<'a> TerminalHelper<'a> {
         terminal_helper
     }
 
-    fn set_percentage(&mut self, percentage: u16) {
-        self.percentage = min(percentage, 100)
+    pub fn set_percentage(&mut self, percentage: u16) {
+        self.percentage = min(percentage, 100);
+        self.render();
     }
 
     fn generate_list_item(item: &'a str) -> ListItem<'a> {

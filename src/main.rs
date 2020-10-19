@@ -14,7 +14,8 @@ use crate::league::League;
 use crate::terminal_helper::TerminalHelper;
 
 fn main() {
-    TerminalHelper::new();
+    let terminal_helper = TerminalHelper::new();
+
 }
 
 fn main2() {
