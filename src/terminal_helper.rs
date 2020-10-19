@@ -14,7 +14,7 @@ pub struct TerminalHelper<'a> {
     players_list: Vec<ListItem<'a>>,
 }
 
-impl TerminalHelper<'_> {
+impl<'a> TerminalHelper<'a> {
     pub fn new() -> Self {
         let stdout = io::stdout();
         let backend = CrosstermBackend::new(stdout);
@@ -36,6 +36,22 @@ impl TerminalHelper<'_> {
 
     fn set_percentage(&mut self, percentage: u16) {
         self.percentage = min(percentage, 100)
+    }
+
+    fn push_list_item(list: &mut Vec<ListItem<'a>>, item: &'a str) {
+        list.push(ListItem::new(item).style(Style::default().fg(Color::LightGreen)));
+    }
+
+    pub fn push_league_item(&mut self, league_name: &'a str) {
+        Self::push_list_item(&mut self.leagues_list, league_name);
+    }
+
+    pub fn push_team_item(&mut self, team_name: &'a str) {
+        Self::push_list_item(&mut self.teams_list, team_name);
+    }
+
+    pub fn push_player_item(&mut self, player_name: &'a str) {
+        Self::push_list_item(&mut self.players_list, player_name);
     }
 
     fn render(&mut self) {
