@@ -20,6 +20,7 @@ impl<'a> TerminalHelper<'a> {
         let stdout = io::stdout();
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend).expect("Error while instanciating terminal");
+        terminal.clear();
         terminal.hide_cursor();
 
         let mut terminal_helper = Self {
