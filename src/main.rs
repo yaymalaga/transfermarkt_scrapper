@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::File, path::Path, io::Write};
+use std::{collections::HashMap, fs::File, io::Write, path::Path};
 
 use player::Player;
 use team::Team;
@@ -17,7 +17,7 @@ use crate::terminal_helper::TerminalHelper;
 fn main() {
     let path = Path::new("scrapping.json");
     let mut file = File::create(&path).expect("Error while creating output file");
-    
+
     let mut caps = DesiredCapabilities::chrome();
     caps.set_headless()
         .expect("Couldn't set chrome in headless mode");
@@ -26,7 +26,7 @@ fn main() {
 
     let mut terminal_helper = TerminalHelper::new();
 
-    let whitelist: Option<Vec<&str>> = Some(vec!["LaLiga"]);
+    let mut whitelist: Option<Vec<&str>> = Some(vec!["LaLiga"]);
     let mut scrapping_data: HashMap<String, League> = HashMap::new();
 
     let leagues_raw_data = League::get_leagues_raw_data(&driver);
@@ -37,9 +37,26 @@ fn main() {
     for league_raw in leagues_raw_data {
         let mut league = League::scrape_league_element(&league_raw);
 
-        if let Some(leagues_list) = &whitelist {
-            if !leagues_list.iter().any(|&i| i == league.name) {
-                continue;
+        // Filter whitelist
+        if let Some(leagues_list) = &mut whitelist {
+            if leagues_list.is_empty() {
+                break;
+            }
+
+            let mut index = None;
+
+            for (i, &name) in leagues_list.iter().enumerate() {
+                if name == league.name {
+                    index = Some(i);
+                    break;
+                }
+            }
+
+            match index {
+                Some(i) => {
+                    leagues_list.remove(i);
+                }
+                None => continue,
             }
         }
 
@@ -87,7 +104,8 @@ fn main() {
     let scrapping_data_json =
         serde_json::to_string(&scrapping_data).expect("Error while serializing data to JSON");
 
-    file.write_all(scrapping_data_json.as_bytes()).expect("Error while saving the scrapping data");
+    file.write_all(scrapping_data_json.as_bytes())
+        .expect("Error while saving the scrapping data");
 
     // 100% finish
     terminal_helper.set_percentage(100.0);
