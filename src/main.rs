@@ -14,7 +14,8 @@ use crate::league::League;
 use crate::terminal_helper::TerminalHelper;
 
 fn main() {
-    let caps = DesiredCapabilities::chrome();
+    let mut caps = DesiredCapabilities::chrome();
+    caps.set_headless().expect("Couldn't set chrome in headless mode");
     let driver = WebDriver::new("http://localhost:4444", &caps).unwrap();
 
     let mut terminal_helper = TerminalHelper::new();
