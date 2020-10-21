@@ -177,3 +177,9 @@ impl<'a> TerminalHelper<'a> {
         });
     }
 }
+
+impl<'a> Drop for TerminalHelper<'a> {
+    fn drop(&mut self) {
+        self.close();
+    }
+}

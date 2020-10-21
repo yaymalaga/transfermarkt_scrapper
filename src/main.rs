@@ -84,7 +84,6 @@ fn main() {
 
     // 100% finish
     terminal_helper.set_percentage(100.0);
-    terminal_helper.close();
 }
 
 fn open_new_tab(driver: &Driver) {
