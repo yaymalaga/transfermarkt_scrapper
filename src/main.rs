@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fs::File, path::Path, io::Write};
 
 use player::Player;
 use team::Team;
@@ -15,6 +15,9 @@ use crate::league::League;
 use crate::terminal_helper::TerminalHelper;
 
 fn main() {
+    let path = Path::new("scrapping.json");
+    let mut file = File::create(&path).expect("Error while creating output file");
+    
     let mut caps = DesiredCapabilities::chrome();
     caps.set_headless()
         .expect("Couldn't set chrome in headless mode");
@@ -83,6 +86,8 @@ fn main() {
     // 95% finish aprox
     let scrapping_data_json =
         serde_json::to_string(&scrapping_data).expect("Error while serializing data to JSON");
+
+    file.write_all(scrapping_data_json.as_bytes()).expect("Error while saving the scrapping data");
 
     // 100% finish
     terminal_helper.set_percentage(100.0);

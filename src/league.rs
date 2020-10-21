@@ -56,33 +56,3 @@ impl League {
             .expect("Error while getting leagues data")
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use thirtyfour_sync::{DesiredCapabilities, WebDriver};
-
-    use super::*;
-
-    #[test]
-    fn scrape_every_league() {
-        let caps = DesiredCapabilities::chrome();
-        let driver =
-            WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
-
-        assert_eq!(League::scrape_leagues_basic(&driver, None).len(), 25);
-    }
-
-    #[test]
-    fn scrape_whitelist() {
-        let caps = DesiredCapabilities::chrome();
-        let driver =
-            WebDriver::new("http://localhost:4444", &caps).expect("ChromeDriver not available");
-
-        let mut scrapping_result =
-            League::scrape_leagues_basic(&driver, Some(vec!["LaLiga", "TEST"]));
-        assert_eq!(scrapping_result.len(), 1);
-
-        League::scrape_league_teams_basic(&driver, &mut scrapping_result[0]);
-        assert_eq!(scrapping_result[0].teams.len(), 20);
-    }
-}
