@@ -10,6 +10,7 @@ mod player;
 mod team;
 mod terminal_helper;
 
+use crate::driver::Driver;
 use crate::league::League;
 use crate::terminal_helper::TerminalHelper;
 
@@ -41,6 +42,9 @@ fn main() {
         terminal_helper.clean_teams_list();
         terminal_helper.clean_players_list();
 
+        open_new_tab(&driver);
+        switch_to_tab(&driver, 1);
+
         let teams_raw_data = Team::get_teams_raw_data(&driver, &league);
         let teams_percentage = league_percentage / teams_raw_data.len() as f64;
         for team_raw in teams_raw_data {
@@ -48,6 +52,9 @@ fn main() {
 
             terminal_helper.push_team_item(team.name.clone());
             terminal_helper.clean_players_list();
+
+            open_new_tab(&driver);
+            switch_to_tab(&driver, 2);
 
             let players_raw_data = Player::get_players_raw_data(&driver, &team);
             let players_percentage = teams_percentage / players_raw_data.len() as f64;
@@ -61,11 +68,14 @@ fn main() {
             }
 
             league.teams.insert(team.name.clone(), team);
-            break;
+            // Close current tab
+            driver.close();
+            switch_to_tab(&driver, 1);
         }
 
         scrapping_data.insert(league.name.clone(), league);
-        break;
+        // Close current tab
+        driver.close();
     }
 
     // 95% finish aprox
@@ -75,4 +85,13 @@ fn main() {
     // 100% finish
     terminal_helper.set_percentage(100.0);
     terminal_helper.close();
+}
+
+fn open_new_tab(driver: &Driver) {
+    driver.execute_script(r#"window.open("about:blank", target="_blank");"#);
+}
+
+fn switch_to_tab(driver: &Driver, tab_index: usize) {
+    let handles = driver.window_handles().expect("Error while getting tabs");
+    driver.switch_to().window(&handles[tab_index]);
 }
