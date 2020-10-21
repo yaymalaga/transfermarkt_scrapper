@@ -96,8 +96,11 @@ impl<'a> TerminalHelper<'a> {
     }
 
     fn get_list_state(list: &Vec<ListItem>, finished: bool) -> ListState {
-        let state = if list.len() == 0 || finished {
+        let state = if list.len() == 0 {
             None
+        } else if finished {
+            // No item selected but padding is maintained
+            Some(list.len())
         } else {
             Some(list.len() - 1)
         };
