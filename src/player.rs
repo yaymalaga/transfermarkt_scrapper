@@ -62,7 +62,7 @@ impl Player {
     pub fn get_players_raw_data<'a>(driver: &'a Driver, team: &Team) -> Vec<WebElement<'a>> {
         driver
             .get(&team.url)
-            .expect(&format!("Error while loading {} team page", &team.name));
+            .unwrap_or_else(|_| panic!("Error while loading {} team page", &team.name));
 
         driver
             .execute_script("window.scrollTo(0, document.body.scrollHeight/3);")
