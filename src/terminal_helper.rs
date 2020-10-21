@@ -54,7 +54,8 @@ impl<'a> TerminalHelper<'a> {
         // Force full re-drawn so the terminal's new line appears below the TUI
         self.terminal.clear();
         self.is_finished = true;
-        self.render()
+        self.render();
+        self.terminal.show_cursor();
     }
 
     fn generate_list_item(item: String) -> ListItem<'a> {
