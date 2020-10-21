@@ -25,7 +25,7 @@ impl<'a> TerminalHelper<'a> {
 
         let mut terminal_helper = Self {
             terminal,
-            percentage: 50.0,
+            percentage: 0.0,
             leagues_list: vec![],
             teams_list: vec![],
             players_list: vec![],
