@@ -12,6 +12,7 @@ pub struct TerminalHelper<'a> {
     leagues_list: Vec<ListItem<'a>>,
     teams_list: Vec<ListItem<'a>>,
     players_list: Vec<ListItem<'a>>,
+    is_finished: bool,
 }
 
 impl<'a> TerminalHelper<'a> {
@@ -27,6 +28,7 @@ impl<'a> TerminalHelper<'a> {
             leagues_list: vec![],
             teams_list: vec![],
             players_list: vec![],
+            is_finished: false
         };
         terminal_helper.render();
 
@@ -50,6 +52,7 @@ impl<'a> TerminalHelper<'a> {
     pub fn close(&mut self) {
         // Force full re-drawn so the terminal's new line appears below the TUI
         self.terminal.clear();
+        self.is_finished = true;
         self.render()
     }
 
@@ -90,8 +93,8 @@ impl<'a> TerminalHelper<'a> {
         }
     }
 
-    fn get_list_state(list: &Vec<ListItem>) -> ListState {
-        let state = if list.len() == 0 {
+    fn get_list_state(list: &Vec<ListItem>, finished: bool) -> ListState {
+        let state = if list.len() == 0 || finished {
             None
         } else {
             Some(list.len() - 1)
@@ -104,6 +107,7 @@ impl<'a> TerminalHelper<'a> {
     }
 
     fn render(&mut self) {
+        let is_finished = self.is_finished;
         let percentage = self.percentage;
         let leagues_list = self.leagues_list.clone();
         let teams_list = self.teams_list.clone();
@@ -137,21 +141,21 @@ impl<'a> TerminalHelper<'a> {
             f.render_widget(block, vertical_chunks[0]);
 
             // Lists space
-            let mut leagues_list_state = Self::get_list_state(&leagues_list);
+            let mut leagues_list_state = Self::get_list_state(&leagues_list, is_finished);
             let leagues_list = List::new(leagues_list)
                 .block(Block::default().title(" LEAGUES ").borders(Borders::ALL))
                 .highlight_style(Style::default().fg(Color::LightCyan))
                 .highlight_symbol(">> ");
             f.render_stateful_widget(leagues_list, horizontal_chunks[0], &mut leagues_list_state);
 
-            let mut teams_list_state = Self::get_list_state(&teams_list);
+            let mut teams_list_state = Self::get_list_state(&teams_list, is_finished);
             let teams_list = List::new(teams_list)
                 .block(Block::default().title(" TEAMS ").borders(Borders::ALL))
                 .highlight_style(Style::default().fg(Color::LightCyan))
                 .highlight_symbol(">> ");
             f.render_stateful_widget(teams_list, horizontal_chunks[1], &mut teams_list_state);
 
-            let mut player_list_state = Self::get_list_state(&players_list);
+            let mut player_list_state = Self::get_list_state(&players_list, is_finished);
             let players_list = List::new(players_list)
                 .block(Block::default().title(" PLAYERS ").borders(Borders::ALL))
                 .highlight_style(Style::default().fg(Color::LightCyan))
