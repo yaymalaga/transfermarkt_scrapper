@@ -16,8 +16,10 @@ use crate::terminal_helper::TerminalHelper;
 
 fn main() {
     let mut caps = DesiredCapabilities::chrome();
-    caps.set_headless().expect("Couldn't set chrome in headless mode");
-    let driver = WebDriver::new("http://localhost:4444", &caps).unwrap();
+    caps.set_headless()
+        .expect("Couldn't set chrome in headless mode");
+    let driver = WebDriver::new("http://localhost:4444", &caps)
+        .expect("Error while connecting to chromedriver");
 
     let mut terminal_helper = TerminalHelper::new();
 
@@ -69,13 +71,13 @@ fn main() {
 
             league.teams.insert(team.name.clone(), team);
             // Close current tab
-            driver.close();
+            driver.close().expect("Error while closing browser tab");
             switch_to_tab(&driver, 1);
         }
 
         scrapping_data.insert(league.name.clone(), league);
         // Close current tab
-        driver.close();
+        driver.close().expect("Error while closing browser tab");
     }
 
     // 95% finish aprox
@@ -87,10 +89,15 @@ fn main() {
 }
 
 fn open_new_tab(driver: &Driver) {
-    driver.execute_script(r#"window.open("about:blank", target="_blank");"#);
+    driver
+        .execute_script(r#"window.open("about:blank", target="_blank");"#)
+        .expect("Error while executing browser script");
 }
 
 fn switch_to_tab(driver: &Driver, tab_index: usize) {
     let handles = driver.window_handles().expect("Error while getting tabs");
-    driver.switch_to().window(&handles[tab_index]);
+    driver
+        .switch_to()
+        .window(&handles[tab_index])
+        .expect("Error while exectuing browser script");
 }

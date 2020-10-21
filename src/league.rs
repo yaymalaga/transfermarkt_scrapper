@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 use serde::Serialize;
+use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 
 use crate::driver::Driver;
 use crate::team::Team;

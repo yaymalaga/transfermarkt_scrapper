@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 use serde::Serialize;
+use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 
 use crate::driver::Driver;
 use crate::league::League;
@@ -16,7 +16,12 @@ pub struct Team {
 }
 
 impl Team {
-    pub fn new(name: String, url: String, logo_url: String, players: HashMap<String, Player>) -> Self {
+    pub fn new(
+        name: String,
+        url: String,
+        logo_url: String,
+        players: HashMap<String, Player>,
+    ) -> Self {
         Self {
             name,
             url,
@@ -50,7 +55,7 @@ impl Team {
     pub fn get_teams_raw_data<'a>(driver: &'a Driver, league: &League) -> Vec<WebElement<'a>> {
         driver
             .get(&league.url)
-            .expect(&format!("Error while loading {} league page", &league.name));
+            .unwrap_or_else(|| panic!("Error while loading {} league page", &league.name));
 
         driver
             .find_elements(By::XPath("//div[@id='yw1']//tbody//tr"))

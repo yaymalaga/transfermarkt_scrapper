@@ -1,5 +1,5 @@
-use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 use serde::Serialize;
+use thirtyfour_sync::{By, WebDriverCommands, WebElement};
 
 use crate::{driver::Driver, team::Team};
 

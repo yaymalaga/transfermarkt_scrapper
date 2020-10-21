@@ -1,10 +1,10 @@
-use std::{cell::RefCell, cmp::min, io::{self, Stdout}};
+use std::io::{self, Stdout};
 use tui::{
     backend::CrosstermBackend, layout::Constraint, layout::Direction, layout::Layout, style::Color,
-    style::Style, text::Span, text::Spans, widgets::Block, widgets::Borders, widgets::Gauge,
-    widgets::List, widgets::ListItem,
+    style::Style, widgets::Block, widgets::Borders, widgets::Gauge, widgets::List,
+    widgets::ListItem,
 };
-use tui::{layout::Corner, widgets::ListState, Terminal};
+use tui::{widgets::ListState, Terminal};
 
 pub struct TerminalHelper<'a> {
     terminal: Terminal<CrosstermBackend<Stdout>>,
@@ -20,8 +20,10 @@ impl<'a> TerminalHelper<'a> {
         let stdout = io::stdout();
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend).expect("Error while instanciating terminal");
-        terminal.clear();
-        terminal.hide_cursor();
+        terminal.clear().expect("Error while clearing the terminal");
+        terminal
+            .hide_cursor()
+            .expect("Error while hiding the cursor of the terminal");
 
         let mut terminal_helper = Self {
             terminal,
@@ -29,7 +31,7 @@ impl<'a> TerminalHelper<'a> {
             leagues_list: vec![],
             teams_list: vec![],
             players_list: vec![],
-            is_finished: false
+            is_finished: false,
         };
         terminal_helper.render();
 
@@ -46,16 +48,20 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn add_percentage(&mut self, percentage: f64) {
-        let new_percentage = (self.percentage + percentage);
+        let new_percentage = self.percentage + percentage;
         self.set_percentage(new_percentage);
     }
 
     pub fn close(&mut self) {
         // Force full re-drawn so the terminal's new line appears below the TUI
-        self.terminal.clear();
+        self.terminal
+            .clear()
+            .expect("Error while clearing the terminal");
         self.is_finished = true;
         self.render();
-        self.terminal.show_cursor();
+        self.terminal
+            .show_cursor()
+            .expect("Error while showing the cursor of the terminal");
     }
 
     fn generate_list_item(item: String) -> ListItem<'a> {
@@ -63,14 +69,9 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn push_league_item(&mut self, league_name: String) {
-        self.leagues_list.push(Self::generate_list_item(league_name));
+        self.leagues_list
+            .push(Self::generate_list_item(league_name));
         self.render();
-    }
-
-    pub fn clean_leagues_list(&mut self) {
-        if !self.leagues_list.is_empty() {
-            self.leagues_list.clear();
-        }
     }
 
     pub fn push_team_item(&mut self, team_name: String) {
@@ -85,7 +86,8 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn push_player_item(&mut self, player_name: String) {
-        self.players_list.push(Self::generate_list_item(player_name));
+        self.players_list
+            .push(Self::generate_list_item(player_name));
         self.render();
     }
 
@@ -95,8 +97,8 @@ impl<'a> TerminalHelper<'a> {
         }
     }
 
-    fn get_list_state(list: &Vec<ListItem>, finished: bool) -> ListState {
-        let state = if list.len() == 0 {
+    fn get_list_state(list: &[ListItem], finished: bool) -> ListState {
+        let state = if list.is_empty() {
             None
         } else if finished {
             // No item selected but padding is maintained
@@ -118,66 +120,76 @@ impl<'a> TerminalHelper<'a> {
         let teams_list = self.teams_list.clone();
         let players_list = self.players_list.clone();
 
-        self.terminal.draw(|f| {
-            // Layout
-            let vertical_chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(1)
-                .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
-                .split(f.size());
+        self.terminal
+            .draw(|f| {
+                // Layout
+                let vertical_chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+                    .split(f.size());
 
-            let horizontal_chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .vertical_margin(1)
-                .horizontal_margin(2)
-                .constraints(
-                    [
-                        Constraint::Percentage(34),
-                        Constraint::Percentage(34),
-                        Constraint::Percentage(33),
-                    ]
-                    .as_ref(),
-                )
-                .split(vertical_chunks[0]);
+                let horizontal_chunks = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .vertical_margin(1)
+                    .horizontal_margin(2)
+                    .constraints(
+                        [
+                            Constraint::Percentage(34),
+                            Constraint::Percentage(34),
+                            Constraint::Percentage(33),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(vertical_chunks[0]);
 
-            let block = Block::default()
-                .title(" SCRAPPING DETAILS ")
-                .borders(Borders::ALL);
-            f.render_widget(block, vertical_chunks[0]);
+                let block = Block::default()
+                    .title(" SCRAPPING DETAILS ")
+                    .borders(Borders::ALL);
+                f.render_widget(block, vertical_chunks[0]);
 
-            // Lists space
-            let mut leagues_list_state = Self::get_list_state(&leagues_list, is_finished);
-            let leagues_list = List::new(leagues_list)
-                .block(Block::default().title(" LEAGUES ").borders(Borders::ALL))
-                .highlight_style(Style::default().fg(Color::LightCyan))
-                .highlight_symbol(">> ");
-            f.render_stateful_widget(leagues_list, horizontal_chunks[0], &mut leagues_list_state);
+                // Lists space
+                let mut leagues_list_state = Self::get_list_state(&leagues_list, is_finished);
+                let leagues_list = List::new(leagues_list)
+                    .block(Block::default().title(" LEAGUES ").borders(Borders::ALL))
+                    .highlight_style(Style::default().fg(Color::LightCyan))
+                    .highlight_symbol(">> ");
+                f.render_stateful_widget(
+                    leagues_list,
+                    horizontal_chunks[0],
+                    &mut leagues_list_state,
+                );
 
-            let mut teams_list_state = Self::get_list_state(&teams_list, is_finished);
-            let teams_list = List::new(teams_list)
-                .block(Block::default().title(" TEAMS ").borders(Borders::ALL))
-                .highlight_style(Style::default().fg(Color::LightCyan))
-                .highlight_symbol(">> ");
-            f.render_stateful_widget(teams_list, horizontal_chunks[1], &mut teams_list_state);
+                let mut teams_list_state = Self::get_list_state(&teams_list, is_finished);
+                let teams_list = List::new(teams_list)
+                    .block(Block::default().title(" TEAMS ").borders(Borders::ALL))
+                    .highlight_style(Style::default().fg(Color::LightCyan))
+                    .highlight_symbol(">> ");
+                f.render_stateful_widget(teams_list, horizontal_chunks[1], &mut teams_list_state);
 
-            let mut player_list_state = Self::get_list_state(&players_list, is_finished);
-            let players_list = List::new(players_list)
-                .block(Block::default().title(" PLAYERS ").borders(Borders::ALL))
-                .highlight_style(Style::default().fg(Color::LightCyan))
-                .highlight_symbol(">> ");
-            f.render_stateful_widget(players_list, horizontal_chunks[2], &mut player_list_state);
+                let mut player_list_state = Self::get_list_state(&players_list, is_finished);
+                let players_list = List::new(players_list)
+                    .block(Block::default().title(" PLAYERS ").borders(Borders::ALL))
+                    .highlight_style(Style::default().fg(Color::LightCyan))
+                    .highlight_symbol(">> ");
+                f.render_stateful_widget(
+                    players_list,
+                    horizontal_chunks[2],
+                    &mut player_list_state,
+                );
 
-            // Progress-bar space
-            let gauge = Gauge::default()
-                .block(
-                    Block::default()
-                        .title("SCRAPPING PERCENTAGE")
-                        .borders(Borders::ALL),
-                )
-                .gauge_style(Style::default().fg(Color::LightMagenta))
-                .percent(percentage.round() as u16);
-            f.render_widget(gauge, vertical_chunks[1]);
-        });
+                // Progress-bar space
+                let gauge = Gauge::default()
+                    .block(
+                        Block::default()
+                            .title("SCRAPPING PERCENTAGE")
+                            .borders(Borders::ALL),
+                    )
+                    .gauge_style(Style::default().fg(Color::LightMagenta))
+                    .percent(percentage.round() as u16);
+                f.render_widget(gauge, vertical_chunks[1]);
+            })
+            .expect("Error while rendering in the terminal");
     }
 }
 
