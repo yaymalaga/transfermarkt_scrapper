@@ -98,6 +98,7 @@ fn main() {
         scrapping_data.insert(league.name.clone(), league);
         // Close current tab
         driver.close().expect("Error while closing browser tab");
+        switch_to_tab(&driver, 0);
     }
 
     // 95% finish aprox
