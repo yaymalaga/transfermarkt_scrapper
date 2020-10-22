@@ -26,7 +26,13 @@ fn main() {
 
     let mut terminal_helper = TerminalHelper::new();
 
-    let mut whitelist: Option<Vec<&str>> = Some(vec!["Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1"]);
+    let mut whitelist: Option<Vec<&str>> = Some(vec![
+        "Premier League",
+        "LaLiga",
+        "Serie A",
+        "Bundesliga",
+        "Ligue 1",
+    ]);
     let mut scrapping_data: HashMap<String, League> = HashMap::new();
 
     let leagues_raw_data = League::get_leagues_raw_data(&driver);

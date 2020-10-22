@@ -1,3 +1,7 @@
+use crossterm::{
+    cursor::MoveTo,
+    ExecutableCommand,
+};
 use std::io::{self, Stdout};
 use tui::{
     backend::CrosstermBackend, layout::Constraint, layout::Direction, layout::Layout, style::Color,
@@ -20,6 +24,7 @@ impl<'a> TerminalHelper<'a> {
         let stdout = io::stdout();
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend).expect("Error while instanciating terminal");
+
         terminal.clear().expect("Error while clearing the terminal");
         terminal
             .hide_cursor()
@@ -33,6 +38,7 @@ impl<'a> TerminalHelper<'a> {
             players_list: vec![],
             is_finished: false,
         };
+
         terminal_helper.render();
 
         terminal_helper
@@ -53,12 +59,18 @@ impl<'a> TerminalHelper<'a> {
     }
 
     pub fn close(&mut self) {
-        // Force full re-drawn so the terminal's new line appears below the TUI
-        self.terminal
-            .clear()
-            .expect("Error while clearing the terminal");
         self.is_finished = true;
         self.render();
+
+        let terminal_size = self
+            .terminal
+            .size()
+            .expect("Error while getting terminal size");
+        self.terminal
+            .backend_mut()
+            .execute(MoveTo(0, terminal_size.height))
+            .expect("Error while moving cursor");
+
         self.terminal
             .show_cursor()
             .expect("Error while showing the cursor of the terminal");
